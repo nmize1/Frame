@@ -4,6 +4,7 @@ from PIL import ImageTk
 import random
 import os
 import sys
+import HEICHandler.py
 
 # Slideshow is the object that handles cycling images
 class Slideshow():
@@ -58,15 +59,22 @@ delay = int(sys.argv[1])
 # Find all valid images in path
 for rt, dirs, files in os.walk(curr_dir):
     for f in files:
-        if f.endswith(".png") or f.endswith(".jpg") or f.endswith(".JPG"):
+        if f.endswith(".png") or f.endswith(".jpg") or f.endswith(".JPG") or f.endswith(".HEIC"):
             img_path = os.path.join(rt, f)
             print(img_path)
             images.append(img_path)
 
+
 # Open all found images in Pillow and resize them to fit on the screen
 # Then convert them to a tkinter friendly image
 for image in images:
-    tmp = Image.open(image)
+    if(image.endswith(".HEIC")):
+        if(sys.platform.startswith("win")):
+            print("Sorry, HEIC files not supported on Windows.")
+        else:
+            tmp = openHEIC(image)
+    else:
+        tmp = Image.open(image)
     imgWidth, imgHeight = tmp.size
     if imgWidth > w or imgHeight > h:
         ratio = min(w/imgWidth, h/imgHeight)
