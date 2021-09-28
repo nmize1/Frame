@@ -8,29 +8,53 @@ import HEICHandler.py
 
 # Slideshow is the object that handles cycling images
 class Slideshow():
-    def __init__(self, delay, images, w, h):
+    def __init__(self, delay, transSpeed, images, w, h):
         self.delay = delay
+        self.transSpeed = transSpeed
         self.images = images
         self.w = w
         self.h = h
-
+        self.old = None
     # Function to cycle images
     # Choose a random image from the opened images and transition to it
     # After delay seconds, recurse to keep the cycle going
     def chooseImage(self):
         img = random.choice(self.images)
-        self.transitionImages(img)
+        self.transitionImages(img, self.old)
         root.after(1000 * self.delay, self.chooseImage)
 
     # Handles creating the new image and removing the old one
     def transitionImages(self, img):
-
-        #ADD IMAGE TRANSITIONS HERE
-
+        if self.old != None:
+            #transition
+            fade(img, 255)
 
         new = canvas.create_image(self.w / 2, self.h / 2, image = img, tags = "new")
         canvas.delete("old")
         canvas.itemconfig(new, tag = "old")
+        self.old = img
+
+    def fade(self, img, alpha):
+        #FADE OUT
+        if(alpha > 0):
+            self.old.putalpha(alpha)
+            image_tk = ImageTk.PhotoImage(self.old)
+            new = canvas.create_image(self.w / 2, self.h / 2, image = img, tags = "new")
+            canvas.delete("old")
+            canvas.itemconfig(new, tag = "old")
+            alpha = alpha - 5
+            root.after(10 * self.transSpeed, lambda: self.fade(img, alpha))
+        #FADE IN
+        elif(alpha > -255):
+            absalpha = abs(alpha)
+            img.putalpha(absalpha)
+            image_tk = ImageTk.PhotoImage(img)
+            new = canvas.create_image(self.w / 2, self.h / 2, image = img, tags = "new")
+            canvas.delete("old")
+            canvas.itemconfig(new, tag = "old")
+            alpha = alpha - 5
+            root.after(10 * self.transSpeed, lambda: self.fade(img, alpha))
+
 
 # Initialize lists to append to later
 images = []
@@ -86,7 +110,7 @@ for image in images:
 
 # Pass the list of tkinter friendly images to the Slideshow class along with needed parameters
 # Start cycling....forever
-ss = Slideshow(delay, opened, w, h)
+ss = Slideshow(delay, 5, opened, w, h)
 ss.chooseImage()
 
 canvas.pack()
