@@ -70,7 +70,7 @@ for rt, dirs, files in os.walk(curr_dir):
 for image in images:
     if(image.endswith(".HEIC")):
         if(sys.platform.startswith("win")):
-            print("Sorry, HEIC files not supported on Windows.")
+            print("Sorry, HEIC files not supported on Windows.\n")
         else:
             tmp = openHEIC(image)
     else:
